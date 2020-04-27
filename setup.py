@@ -16,7 +16,7 @@ def _read(f):
 
 
 setup(
-    name="python-pulse-profiles",
+    name="python-pulseaudio-profiles",
     description="Simple library to create and apply pulseaudio profiles.",
     long_description=(
         _read('DESCRIPTION.rst') + b'\n' +
