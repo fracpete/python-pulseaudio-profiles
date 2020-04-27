@@ -101,6 +101,10 @@ def pulse_info(list_sources=False, list_sinks=False, verbose=False):
             sinks.append(pulse_sink_info(s))
         info['sinks'] = sinks
 
+    configs = list_configs()
+    if len(configs) > 0:
+        info['profiles'] = configs
+
     return info
 
 
@@ -214,7 +218,7 @@ def config_dir():
     :rtype: str
     """
 
-    return os.path.expanduser("~/.config/python-pulseaudio-profiles")
+    return os.path.expanduser("~/.config/" + CLIENT_NAME)
 
 
 def init_config_dir():
@@ -266,6 +270,22 @@ def is_config_name(file_or_name):
         result = True
     return result
 
+
+def list_configs():
+    """
+    Returns the names of all the config files in $HOME/.config/python-pulseaudio-profiles.
+
+    :return: the list of configurations
+    :rtype: list
+    """
+
+    result = []
+
+    for f in os.listdir(config_dir()):
+        if f.endswith(".yaml"):
+            result.append(os.path.splitext(f)[0])
+
+    return result
 
 
 def pulse_create(config=None, source_name=None, sink_name=None, source_port=None, sink_port=None, desc=None):

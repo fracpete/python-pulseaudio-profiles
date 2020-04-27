@@ -1,7 +1,7 @@
 import argparse
 import traceback
 import yaml
-from pypulseprofiles.core import pulse_info
+from pypulseprofiles.core import pulse_info, CLIENT_NAME
 
 
 def main(args=None):
@@ -14,7 +14,7 @@ def main(args=None):
     """
 
     parser = argparse.ArgumentParser(
-        description='Outputs PulseAudio information in YAML format.', prog="ppp-info")
+        description='Outputs PulseAudio information in YAML format and any available profiles stored in %s.' % ("$HOME/.config/" + CLIENT_NAME), prog="ppp-info")
     parser.add_argument("--list_sources", action="store_true", dest="list_sources", help="whether to list all the available source")
     parser.add_argument("--list_sinks", action="store_true", dest="list_sinks", help="whether to list all the available sinks")
     parser.add_argument("--verbose", action="store_true", dest="verbose", help="whether to be more verbose in the output")
