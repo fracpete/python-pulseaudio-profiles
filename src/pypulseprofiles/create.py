@@ -20,9 +20,11 @@ def main(args=None):
     parser.add_argument("--sink", metavar="NAME_OR_DESC", dest="sink", default=None, help="the specific pulseaudio sink to use (name or description), otherwise current default is used")
     parser.add_argument("--sink_port", metavar="NAME_OR_DESC", dest="sink_port", default=None, help="the specific pulseaudio sink port to use (name or description), otherwise currently active one is used")
     parser.add_argument("--desc", metavar="DESC", dest="desc", default=None, help="the optional description for this profile")
+    parser.add_argument("--volume", action="store_true", dest="volume", help="whether to include the (average) volume across all channels")
     parsed = parser.parse_args(args=args)
     pulse_create(config=parsed.config, source_name=parsed.source, sink_name=parsed.sink,
-           source_port=parsed.source_port, sink_port=parsed.sink_port, desc=parsed.desc)
+           source_port=parsed.source_port, sink_port=parsed.sink_port, desc=parsed.desc,
+                 volume=parsed.volume)
 
 
 def sys_main():

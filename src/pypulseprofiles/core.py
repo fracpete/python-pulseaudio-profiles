@@ -16,12 +16,14 @@ def pulse_instance():
     return pulsectl.Pulse(APPLICATION_NAME)
 
 
-def pulse_source_info(source, verbose=False):
+def pulse_source_info(source, volume=False, verbose=False):
     """
     Generates a dictionary from the PulseSourceInfo object.
 
-    :param source: the PulseSinkInfo object to use
-    :type source: pulsectl.PulseSinkInfo
+    :param source: the PulseSourceInfo object to use
+    :type source: pulsectl.PulseSourceInfo
+    :param volume: whether to include the (average) volume across all channels
+    :type volume: bool
     :param verbose: whether to generate a verbose result
     :type verbose: bool
     :return: dictionary of info
@@ -34,6 +36,8 @@ def pulse_source_info(source, verbose=False):
         result['device'] = {}
         result['device']['name'] = source.name
         result['device']['description'] = source.description
+        if volume:
+            result['device']['volume'] = source.volume.value_flat
         if source.port_active is not None:
             result['port'] = {}
             result['port']['name'] = source.port_active.name
@@ -42,16 +46,20 @@ def pulse_source_info(source, verbose=False):
         result['device'] = source.description
         if source.port_active is not None:
             result['port'] = source.port_active.description
+        if volume:
+            result['volume'] = source.volume.value_flat
 
     return result
 
 
-def pulse_sink_info(sink, verbose=False):
+def pulse_sink_info(sink, volume=False, verbose=False):
     """
     Generates a dictionary from the PulseSinkInfo object.
 
     :param sink: the PulseSinkInfo object to use
     :type sink: pulsectl.PulseSinkInfo
+    :param volume: whether to include the (average) volume across all channels
+    :type volume: bool
     :param verbose: whether to generate a verbose result
     :type verbose: bool
     :return: dictionary of info
@@ -64,6 +72,8 @@ def pulse_sink_info(sink, verbose=False):
         result['device'] = {}
         result['device']['name'] = sink.name
         result['device']['description'] = sink.description
+        if volume:
+            result['device']['volume'] = sink.volume.value_flat
         if sink.port_active is not None:
             result['port'] = {}
             result['port']['name'] = sink.port_active.name
@@ -72,11 +82,13 @@ def pulse_sink_info(sink, verbose=False):
         result['device'] = sink.description
         if sink.port_active is not None:
             result['port'] = sink.port_active.description
+        if volume:
+            result['volume'] = sink.volume.value_flat
 
     return result
 
 
-def pulse_info(list_sources=False, list_sinks=False, verbose=False):
+def pulse_info(list_sources=False, list_sinks=False, volume=False, verbose=False):
     """
     Returns a dictionary with information about the setup.
 
@@ -84,6 +96,8 @@ def pulse_info(list_sources=False, list_sinks=False, verbose=False):
     :type list_sources: bool
     :param list_sinks: whether to list sinks
     :type list_sinks: bool
+    :param volume: whether to include the (average) volume across all channels
+    :type volume: bool
     :param verbose: whether to be verbose
     :type verbose: bool
     """
@@ -91,19 +105,19 @@ def pulse_info(list_sources=False, list_sinks=False, verbose=False):
     pulse = pulse_instance()
 
     info = dict()
-    info['default_source'] = pulse_source_info(pulse_source(), verbose=verbose)
-    info['default_sink'] = pulse_sink_info(pulse_sink(), verbose=verbose)
+    info['default_source'] = pulse_source_info(pulse_source(), volume=volume, verbose=verbose)
+    info['default_sink'] = pulse_sink_info(pulse_sink(), volume=volume, verbose=verbose)
 
     if list_sources:
         sources = []
         for s in pulse.source_list():
-            sources.append(pulse_source_info(s, verbose=verbose))
+            sources.append(pulse_source_info(s, volume=volume, verbose=verbose))
         info['sources'] = sources
 
     if list_sinks:
         sinks = []
         for s in pulse.source_list():
-            sinks.append(pulse_sink_info(s, verbose=verbose))
+            sinks.append(pulse_sink_info(s, volume=volume, verbose=verbose))
         info['sinks'] = sinks
 
     configs = list_configs()
@@ -297,7 +311,7 @@ def list_configs():
     return result
 
 
-def pulse_create_profile(source_name=None, sink_name=None, source_port=None, sink_port=None, desc=None):
+def pulse_create_profile(source_name=None, sink_name=None, source_port=None, sink_port=None, desc=None, volume=False):
     """
     Creates and returns a profile.
 
@@ -311,6 +325,8 @@ def pulse_create_profile(source_name=None, sink_name=None, source_port=None, sin
     :type sink_port: str
     :param desc: the optional description for this profile
     :type desc: str
+    :param volume: whether to include the (average) volume across all channels
+    :type volume: bool
     """
 
     source_obj = pulse_source(source_name)
@@ -332,10 +348,14 @@ def pulse_create_profile(source_name=None, sink_name=None, source_port=None, sin
     result = {}
     result['source'] = {}
     result['source']['device'] = source_obj.name
+    if volume:
+        result['source']['volume'] = source_obj.volume.value_flat
     if source_port_obj is not None:
         result['source']['port'] = source_port_obj.name
     result['sink'] = {}
     result['sink']['device'] = sink_obj.name
+    if volume:
+        result['sink']['volume'] = sink_obj.volume.value_flat
     if sink_port_obj is not None:
         result['sink']['port'] = sink_port_obj.name
 
@@ -345,7 +365,7 @@ def pulse_create_profile(source_name=None, sink_name=None, source_port=None, sin
     return result
 
 
-def pulse_create(config=None, source_name=None, sink_name=None, source_port=None, sink_port=None, desc=None):
+def pulse_create(config=None, source_name=None, sink_name=None, source_port=None, sink_port=None, desc=None, volume=False):
     """
     Creates a profile and stores it under the specified file name (or name in config dir) or to stdout if config is None.
 
@@ -361,10 +381,13 @@ def pulse_create(config=None, source_name=None, sink_name=None, source_port=None
     :type sink_port: str
     :param desc: the optional description for this profile
     :type desc: str
+    :param volume: whether to include the (average) volume across all channels
+    :type volume: bool
     """
 
     profile = pulse_create_profile(source_name=source_name, sink_name=sink_name,
-                                   source_port=source_port, sink_port=sink_port)
+                                   source_port=source_port, sink_port=sink_port,
+                                   desc=desc, volume=volume)
 
     if config is None:
         print(yaml.dump(profile))
@@ -382,12 +405,14 @@ def pulse_create(config=None, source_name=None, sink_name=None, source_port=None
             print("Profile written to: %s" % config_filename)
 
 
-def pulse_apply_profile(profile):
+def pulse_apply_profile(profile, volume=False):
     """
     Applies the profile dictionary.
 
     :param profile: the dictionary with source/sink information.
     :type profile: dict
+    :param volume: whether to set the volume across all channels (if present)
+    :type volume: bool
     """
 
     # sanity checks
@@ -404,6 +429,9 @@ def pulse_apply_profile(profile):
     source = pulse_source(profile['source']['device'])
     if source is None:
         raise Exception("Source device is not available: %s" % profile['source']['device'])
+    source_volume = None
+    if "volume" in profile['source']:
+        source_volume = float(profile['source']['volume'])
     source_port = None
     if "port" in profile['source']:
         source_port = pulse_source_port(source, profile['source']['port'])
@@ -414,6 +442,9 @@ def pulse_apply_profile(profile):
     sink = pulse_sink(profile['sink']['device'])
     if sink is None:
         raise Exception("Sink device is not available: %s" % profile['sink']['device'])
+    sink_volume = None
+    if "volume" in profile['sink']:
+        sink_volume = float(profile['sink']['volume'])
     sink_port = None
     if "port" in profile['sink']:
         sink_port = pulse_sink_port(sink, profile['sink']['port'])
@@ -423,19 +454,27 @@ def pulse_apply_profile(profile):
 
     pulse = pulse_instance()
     pulse.default_set(source)
+    if volume and source_volume is not None:
+        source.volume.value_flat = source_volume
+        pulse.volume_set(source, source.volume)
     if source_port is not None:
         pulse.port_set(source, source_port)
     pulse.default_set(sink)
+    if volume and sink_volume is not None:
+        sink.volume.value_flat = sink_volume
+        pulse.volume_set(sink, sink.volume)
     if sink_port is not None:
         pulse.port_set(sink, sink_port)
 
 
-def pulse_apply(config):
+def pulse_apply(config, volume=False):
     """
     Applies the specified configuration.
 
     :param config: the configuration name or file
     :type config: str
+    :param volume: whether to set the volume across all channels (if present)
+    :type volume: bool
     """
 
     config_filename = expand_config(config)
@@ -447,4 +486,4 @@ def pulse_apply(config):
 
     with open(config_filename, "r") as config_file:
         profile = yaml.safe_load(config_file)
-        pulse_apply_profile(profile)
+        pulse_apply_profile(profile, volume=volume)

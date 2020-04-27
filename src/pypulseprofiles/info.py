@@ -17,9 +17,11 @@ def main(args=None):
         description='Outputs PulseAudio information in YAML format and any available profiles stored in %s.' % ("$HOME/.config/" + APPLICATION_NAME), prog="ppp-info")
     parser.add_argument("--list_sources", action="store_true", dest="list_sources", help="whether to list all the available source")
     parser.add_argument("--list_sinks", action="store_true", dest="list_sinks", help="whether to list all the available sinks")
+    parser.add_argument("--volume", action="store_true", dest="volume", help="whether to include the (average) volume across all channels")
     parser.add_argument("--verbose", action="store_true", dest="verbose", help="whether to be more verbose in the output")
     parsed = parser.parse_args(args=args)
-    print(yaml.dump(pulse_info(list_sources=parsed.list_sources, list_sinks=parsed.list_sinks, verbose=parsed.verbose)))
+    print(yaml.dump(pulse_info(list_sources=parsed.list_sources, list_sinks=parsed.list_sinks,
+                               volume=parsed.volume, verbose=parsed.verbose)))
 
 
 def sys_main():

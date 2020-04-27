@@ -19,15 +19,17 @@ pip install python-pulseaudio-profiles
 If you want to output information about your PulseAudion setup, then you
 can use `ppp-info`:
 
-```commandline
-usage: ppp-info [-h] [--list_sources] [--list_sinks] [--verbose]
+```
+usage: ppp-info [-h] [--list_sources] [--list_sinks] [--volume] [--verbose]
 
-Outputs PulseAudio information in YAML format.
+Outputs PulseAudio information in YAML format and any available profiles
+stored in $HOME/.config/python-pulseaudio-profiles.
 
 optional arguments:
   -h, --help      show this help message and exit
   --list_sources  whether to list all the available source
   --list_sinks    whether to list all the available sinks
+  --volume        whether to include the (average) volume across all channels
   --verbose       whether to be more verbose in the output
 ```
 
@@ -36,10 +38,10 @@ optional arguments:
 For creating a configuration you can use `ppp-create`, either using the current 
 defaults or overriding them with specific source/sink.
 
-```commandline
+```
 usage: ppp-create [-h] [--config NAME_OR_FILE] [--source NAME_OR_DESC]
                   [--source_port NAME_OR_DESC] [--sink NAME_OR_DESC]
-                  [--sink_port NAME_OR_DESC] [--desc DESC]
+                  [--sink_port NAME_OR_DESC] [--desc DESC] [--volume]
 
 Creates a PulseAudio profile in YAML format.
 
@@ -60,14 +62,16 @@ optional arguments:
                         the specific pulseaudio sink port to use (name or
                         description), otherwise currently active one is used
   --desc DESC           the optional description for this profile
+  --volume              whether to include the (average) volume across all
+                        channels
 ``` 
 
 ### Apply
 
 You can apply a configuration using `ppp-apply`:
 
-```commandline
-usage: ppp-apply [-h] [--config NAME_OR_FILE]
+```
+usage: ppp-apply [-h] [--config NAME_OR_FILE] [--volume]
 
 Applies a PulseAudio profile in YAML format.
 
@@ -76,4 +80,6 @@ optional arguments:
   --config NAME_OR_FILE
                         the file (or config name) to load the profile from,
                         outputs it to stdout if not provided
+  --volume              whether to set the (average) volume across all
+                        channels
 ```
