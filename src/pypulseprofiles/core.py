@@ -20,6 +20,8 @@ def pulse_source_info(source, verbose=False):
     """
     Generates a dictionary from the PulseSourceInfo object.
 
+    :param source: the PulseSinkInfo object to use
+    :type source: pulsectl.PulseSinkInfo
     :param verbose: whether to generate a verbose result
     :type verbose: bool
     :return: dictionary of info
@@ -48,6 +50,8 @@ def pulse_sink_info(sink, verbose=False):
     """
     Generates a dictionary from the PulseSinkInfo object.
 
+    :param sink: the PulseSinkInfo object to use
+    :type sink: pulsectl.PulseSinkInfo
     :param verbose: whether to generate a verbose result
     :type verbose: bool
     :return: dictionary of info
@@ -86,20 +90,20 @@ def pulse_info(list_sources=False, list_sinks=False, verbose=False):
 
     pulse = pulse_instance()
 
-    info = {}
-    info['default_source'] = pulse_source_info(pulse_source())
-    info['default_sink'] = pulse_sink_info(pulse_sink())
+    info = dict()
+    info['default_source'] = pulse_source_info(pulse_source(), verbose=verbose)
+    info['default_sink'] = pulse_sink_info(pulse_sink(), verbose=verbose)
 
     if list_sources:
         sources = []
         for s in pulse.source_list():
-            sources.append(pulse_source_info(s))
+            sources.append(pulse_source_info(s, verbose=verbose))
         info['sources'] = sources
 
     if list_sinks:
         sinks = []
         for s in pulse.source_list():
-            sinks.append(pulse_sink_info(s))
+            sinks.append(pulse_sink_info(s, verbose=verbose))
         info['sinks'] = sinks
 
     configs = list_configs()
@@ -161,6 +165,8 @@ def pulse_source_port(source, name_or_desc):
     """
     Returns the PulseSourceInfo that matches the string, either against the name or the description.
 
+    :param source: the PulseSourceObject to get the port from
+    :type source: pulsectl.PulseSourceObject
     :param name_or_desc: the name or description string to look for, uses active one if None
     :type name_or_desc: str
     :return: the PulsePortInfo object or None if not found
@@ -188,6 +194,8 @@ def pulse_sink_port(sink, name_or_desc):
     """
     Returns the PulseSinkInfo that matches the string, either against the name or the description.
 
+    :param sink: the PulseSinkObject to get the port from
+    :type sink: pulsectl.PulseSinkObject
     :param name_or_desc: the name or description string to look for, uses active one if None
     :type name_or_desc: str
     :return: the PulseSinkInfo object or None if not found
@@ -231,7 +239,7 @@ def init_config_dir():
     """
 
     d = config_dir()
-    if (os.path.exists(d)):
+    if os.path.exists(d):
         return os.path.isdir(d)
     else:
         os.mkdir(d, mode=0o700)
@@ -289,6 +297,54 @@ def list_configs():
     return result
 
 
+def pulse_create_profile(source_name=None, sink_name=None, source_port=None, sink_port=None, desc=None):
+    """
+    Creates and returns a profile.
+
+    :param source_name: the name or description of the pulseaudio source to use, uses current default if None
+    :type source_name: str
+    :param sink_name: the name or description of the pulseaudio sink to use, uses current default if None
+    :type sink_name: str
+    :param source_port: the name or description of the source port to use, uses first one of source if None
+    :type source_port: str
+    :param sink_port: the name or description of the sink port to use, uses first one of sink if None
+    :type sink_port: str
+    :param desc: the optional description for this profile
+    :type desc: str
+    """
+
+    source_obj = pulse_source(source_name)
+    if source_obj is None:
+        if source_name is None:
+            raise Exception("No default source available!")
+        else:
+            raise Exception("Unknown source: %s" % source_name)
+    source_port_obj = pulse_source_port(source_obj, source_port)
+
+    sink_obj = pulse_sink(sink_name)
+    if sink_obj is None:
+        if sink_name is None:
+            raise Exception("No default sink available!")
+        else:
+            raise Exception("Unknown sink: %s" % sink_name)
+    sink_port_obj = pulse_sink_port(sink_obj, sink_port)
+
+    result = {}
+    result['source'] = {}
+    result['source']['device'] = source_obj.name
+    if source_port_obj is not None:
+        result['source']['port'] = source_port_obj.name
+    result['sink'] = {}
+    result['sink']['device'] = sink_obj.name
+    if sink_port_obj is not None:
+        result['sink']['port'] = sink_port_obj.name
+
+    if desc is not None:
+        result['description'] = desc
+
+    return result
+
+
 def pulse_create(config=None, source_name=None, sink_name=None, source_port=None, sink_port=None, desc=None):
     """
     Creates a profile and stores it under the specified file name (or name in config dir) or to stdout if config is None.
@@ -307,34 +363,8 @@ def pulse_create(config=None, source_name=None, sink_name=None, source_port=None
     :type desc: str
     """
 
-    _source = pulse_source(source_name)
-    if _source is None:
-        if source_name is None:
-            raise Exception("No default source available!")
-        else:
-            raise Exception("Unknown source: %s" % source_name)
-    _source_port = pulse_source_port(_source, source_port)
-
-    _sink = pulse_sink(sink_name)
-    if _sink is None:
-        if sink_name is None:
-            raise Exception("No default sink available!")
-        else:
-            raise Exception("Unknown sink: %s" % sink_name)
-    _sink_port = pulse_sink_port(_sink, sink_port)
-
-    profile = {}
-    profile['source'] = {}
-    profile['source']['device'] = _source.name
-    if _source_port is not None:
-        profile['source']['port'] = _source_port.name
-    profile['sink'] = {}
-    profile['sink']['device'] = _sink.name
-    if _sink_port is not None:
-        profile['sink']['port'] = _sink_port.name
-
-    if desc is not None:
-        profile['description'] = desc
+    profile = pulse_create_profile(source_name=source_name, sink_name=sink_name,
+                                   source_port=source_port, sink_port=sink_port)
 
     if config is None:
         print(yaml.dump(profile))
