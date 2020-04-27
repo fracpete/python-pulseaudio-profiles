@@ -6,7 +6,7 @@ underneath the hood.
 
 ## Installation
 
-Once released (not yet), you can install the tool via `pip`:
+You can install the tool via `pip`:
 
 ```commandline
 pip install python-pulseaudio-profiles
