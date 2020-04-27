@@ -2,7 +2,8 @@ import os
 import pulsectl
 import yaml
 
-CLIENT_NAME = "python-pulseaudio-profiles"
+APPLICATION_NAME = "python-pulseaudio-profiles"
+""" the name of the application and pulseaudio client. """
 
 
 def pulse_instance():
@@ -12,7 +13,7 @@ def pulse_instance():
     :return: the instance
     :rtype: pulsectl.Pulse
     """
-    return pulsectl.Pulse(CLIENT_NAME)
+    return pulsectl.Pulse(APPLICATION_NAME)
 
 
 def pulse_source_info(source, verbose=False):
@@ -218,7 +219,7 @@ def config_dir():
     :rtype: str
     """
 
-    return os.path.expanduser("~/.config/" + CLIENT_NAME)
+    return os.path.expanduser("~/.config/" + APPLICATION_NAME)
 
 
 def init_config_dir():
