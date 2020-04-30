@@ -1,11 +1,11 @@
 import argparse
 import traceback
-from pypulseprofiles.core import pulse_apply
+from pypulseprofiles.core import pulse_delete, APPLICATION_NAME
 
 
 def main(args=None):
     """
-    Applies a PulseAudio profile in YAML format.
+    Deletes the specified profile.
     Use -h to see all options.
 
     :param args: the command-line arguments to use, uses sys.argv if None
@@ -13,12 +13,11 @@ def main(args=None):
     """
 
     parser = argparse.ArgumentParser(
-        description='Applies a PulseAudio profile in YAML format.',
-        prog="ppp-apply")
-    parser.add_argument("--config", metavar="NAME_OR_FILE", dest="config", required=True, help="the file (or config name) to load the profile from, outputs it to stdout if not provided")
-    parser.add_argument("--volume", action="store_true", dest="volume", help="whether to set the (average) volume across all channels")
+        description='Deletes the specified profile stored in %s.' % ("$HOME/.config/" + APPLICATION_NAME),
+        prog="ppp-rm")
+    parser.add_argument("--config", metavar="NAME", dest="config", required=True, help="the config name to delete")
     parsed = parser.parse_args(args=args)
-    pulse_apply(config=parsed.config, volume=parsed.volume)
+    pulse_delete(parsed.config)
 
 
 def sys_main():

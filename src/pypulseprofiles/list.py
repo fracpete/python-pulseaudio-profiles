@@ -1,11 +1,11 @@
 import argparse
 import traceback
-from pypulseprofiles.core import pulse_apply
+from pypulseprofiles.core import pulse_list, APPLICATION_NAME
 
 
 def main(args=None):
     """
-    Applies a PulseAudio profile in YAML format.
+    Lists all the available profiles.
     Use -h to see all options.
 
     :param args: the command-line arguments to use, uses sys.argv if None
@@ -13,12 +13,11 @@ def main(args=None):
     """
 
     parser = argparse.ArgumentParser(
-        description='Applies a PulseAudio profile in YAML format.',
-        prog="ppp-apply")
-    parser.add_argument("--config", metavar="NAME_OR_FILE", dest="config", required=True, help="the file (or config name) to load the profile from, outputs it to stdout if not provided")
-    parser.add_argument("--volume", action="store_true", dest="volume", help="whether to set the (average) volume across all channels")
+        description='Lists all the available profiles stored in %s.' % ("$HOME/.config/" + APPLICATION_NAME),
+        prog="ppp-list")
+    parser.add_argument("--verbose", action="store_true", dest="verbose", help="whether to output the content of the profiles as well")
     parsed = parser.parse_args(args=args)
-    pulse_apply(config=parsed.config, volume=parsed.volume)
+    pulse_list(verbose=parsed.verbose)
 
 
 def sys_main():

@@ -22,8 +22,7 @@ can use `ppp-info`:
 ```
 usage: ppp-info [-h] [--list_sources] [--list_sinks] [--volume] [--verbose]
 
-Outputs PulseAudio information in YAML format and any available profiles
-stored in $HOME/.config/python-pulseaudio-profiles.
+Outputs PulseAudio information in YAML format
 
 optional arguments:
   -h, --help      show this help message and exit
@@ -66,12 +65,27 @@ optional arguments:
                         channels
 ``` 
 
+### List
+
+You can list configurations using `ppp-list`:
+
+```
+usage: ppp-list [-h] [--verbose]
+
+Lists all the available profiles stored in $HOME/.config/python-pulseaudio-
+profiles.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --verbose   whether to output the content of the profiles as well
+```
+
 ### Apply
 
 You can apply a configuration using `ppp-apply`:
 
 ```
-usage: ppp-apply [-h] [--config NAME_OR_FILE] [--volume]
+usage: ppp-apply [-h] --config NAME_OR_FILE [--volume]
 
 Applies a PulseAudio profile in YAML format.
 
@@ -82,4 +96,19 @@ optional arguments:
                         outputs it to stdout if not provided
   --volume              whether to set the (average) volume across all
                         channels
+```
+
+### Delete
+
+You can remove a configuration using `ppp-rm`:
+
+```
+usage: ppp-rm [-h] --config NAME
+
+Deletes the specified profile stored in $HOME/.config/python-pulseaudio-
+profiles.
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --config NAME  the config name to delete
 ```

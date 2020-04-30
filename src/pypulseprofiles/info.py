@@ -14,7 +14,8 @@ def main(args=None):
     """
 
     parser = argparse.ArgumentParser(
-        description='Outputs PulseAudio information in YAML format and any available profiles stored in %s.' % ("$HOME/.config/" + APPLICATION_NAME), prog="ppp-info")
+        description='Outputs PulseAudio information in YAML format',
+        prog="ppp-info")
     parser.add_argument("--list_sources", action="store_true", dest="list_sources", help="whether to list all the available source")
     parser.add_argument("--list_sinks", action="store_true", dest="list_sinks", help="whether to list all the available sinks")
     parser.add_argument("--volume", action="store_true", dest="volume", help="whether to include the (average) volume across all channels")

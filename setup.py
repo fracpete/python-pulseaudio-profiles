@@ -36,7 +36,7 @@ setup(
     packages=[
         "pypulseprofiles",
     ],
-    version="0.0.1",
+    version="0.0.2",
     author='Peter "fracpete" Reutemann',
     author_email='fracpete@gmail.com',
     install_requires=[
@@ -48,6 +48,8 @@ setup(
             "ppp-info=pypulseprofiles.info:sys_main",
             "ppp-create=pypulseprofiles.create:sys_main",
             "ppp-apply=pypulseprofiles.apply:sys_main",
+            "ppp-list=pypulseprofiles.list:sys_main",
+            "ppp-rm=pypulseprofiles.delete:sys_main",
         ]
     }
 )

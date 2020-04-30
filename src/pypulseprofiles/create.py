@@ -5,7 +5,7 @@ from pypulseprofiles.core import pulse_create
 
 def main(args=None):
     """
-    Outputs information about the PulseAudio setup.
+    Creates a PulseAudio profile in YAML format.
     Use -h to see all options.
 
     :param args: the command-line arguments to use, uses sys.argv if None
@@ -13,7 +13,8 @@ def main(args=None):
     """
 
     parser = argparse.ArgumentParser(
-        description='Creates a PulseAudio profile in YAML format.', prog="ppp-create")
+        description='Creates a PulseAudio profile in YAML format.',
+        prog="ppp-create")
     parser.add_argument("--config", metavar="NAME_OR_FILE", dest="config", default=None, help="the file to store the profile in, outputs it to stdout if not provided")
     parser.add_argument("--source", metavar="NAME_OR_DESC", dest="source", default=None, help="the specific pulseaudio source to use (name or description), otherwise current default is used")
     parser.add_argument("--source_port", metavar="NAME_OR_DESC", dest="source_port", default=None, help="the specific pulseaudio source port to use (name or description), otherwise currently active one is used")

@@ -1,9 +1,7 @@
 import os
 import pulsectl
 import yaml
-
-APPLICATION_NAME = "python-pulseaudio-profiles"
-""" the name of the application and pulseaudio client. """
+from pypulseprofiles.config import *
 
 
 def pulse_instance():
@@ -120,10 +118,6 @@ def pulse_info(list_sources=False, list_sinks=False, volume=False, verbose=False
             sinks.append(pulse_sink_info(s, volume=volume, verbose=verbose))
         info['sinks'] = sinks
 
-    configs = list_configs()
-    if len(configs) > 0:
-        info['profiles'] = configs
-
     return info
 
 
@@ -233,84 +227,6 @@ def pulse_sink_port(sink, name_or_desc):
     return result
 
 
-def config_dir():
-    """
-    Returns the config directory ($HOME/.config/python-pulseaudio-profiles).
-
-    :return: the directory for the configurations
-    :rtype: str
-    """
-
-    return os.path.expanduser("~/.config/" + APPLICATION_NAME)
-
-
-def init_config_dir():
-    """
-    Ensures that the config directory is present.
-
-    :return: if directory present
-    :rtype: bool
-    """
-
-    d = config_dir()
-    if os.path.exists(d):
-        return os.path.isdir(d)
-    else:
-        os.mkdir(d, mode=0o700)
-        return True
-
-
-def expand_config(file_or_name):
-    """
-    Expands the configuration file or name.
-
-    :param file_or_name: the file or name (beneath $HOME/.config/python-pulseaudio-profiles)
-    :type file_or_name: str
-    :return: the absolute file name
-    :rtype: str
-    """
-
-    root, ext = os.path.splitext(file_or_name)
-    head, tail = os.path.split(file_or_name)
-    if (ext == "") and (head == ""):
-        return os.path.join(config_dir(), tail + ".yaml")
-    else:
-        return os.path.abspath(os.path.expanduser(file_or_name))
-
-
-def is_config_name(file_or_name):
-    """
-    Checks whether the string represents a file or just a config name.
-
-    :param file_or_name: the string to check
-    :type file_or_name: str
-    :return: whether a config name rather than a filename.
-    :rtype: bool
-    """
-
-    result = False
-    if os.path.commonprefix([expand_config(file_or_name), config_dir()]) == config_dir():
-        result = True
-    return result
-
-
-def list_configs():
-    """
-    Returns the names of all the config files in $HOME/.config/python-pulseaudio-profiles.
-
-    :return: the list of configurations
-    :rtype: list
-    """
-
-    result = []
-
-    for f in os.listdir(config_dir()):
-        if f.endswith(".yaml"):
-            result.append(os.path.splitext(f)[0])
-
-    return result
-
-
 def pulse_create_profile(source_name=None, sink_name=None, source_port=None, sink_port=None, desc=None, volume=False):
     """
     Creates and returns a profile.
@@ -405,6 +321,28 @@ def pulse_create(config=None, source_name=None, sink_name=None, source_port=None
             print("Profile written to: %s" % config_filename)
 
 
+def pulse_load(config):
+    """
+    Loads the specified configuration and returns the profile.
+
+    :param config: the configuration name or file
+    :type config: str
+    :return: the profile
+    :rtype: dictionary
+    """
+
+    config_filename = expand_config(config)
+    if not os.path.exists(config_filename):
+        if is_config_name(config):
+            raise Exception("Profile does not exist: %s (expanded to %s)" % (config, config_filename))
+        else:
+            raise Exception("Profile file does not exist: %s (expanded to %s)" % (config, config_filename))
+
+    with open(config_filename, "r") as config_file:
+        profile = yaml.safe_load(config_file)
+        return profile
+
+
 def pulse_apply_profile(profile, volume=False):
     """
     Applies the profile dictionary.
@@ -477,13 +415,39 @@ def pulse_apply(config, volume=False):
     :type volume: bool
     """
 
-    config_filename = expand_config(config)
-    if not os.path.exists(config_filename):
-        if is_config_name(config):
-            raise Exception("Profile does not exist: %s (expanded to %s)" % (config, config_filename))
-        else:
-            raise Exception("Profile file does not exist: %s (expanded to %s)" % (config, config_filename))
+    pulse_apply_profile(pulse_load(config), volume=volume)
 
-    with open(config_filename, "r") as config_file:
-        profile = yaml.safe_load(config_file)
-        pulse_apply_profile(profile, volume=volume)
+
+def pulse_list(verbose=False):
+    """
+    Lists all the available profiles in the config dir.
+
+    :param verbose: if True the content of the profiles is output as well
+    :rtype: bool
+    """
+
+    profiles = list_configs()
+    if len(profiles) == 0:
+        print("No profiles available")
+    else:
+        print("Available profile(s):")
+        for profile in profiles:
+            print("-", profile)
+            if verbose:
+                content = pulse_load(profile)
+                lines = yaml.dump(content).split("\n")
+                for i in range(len(lines)):
+                    lines[i] = "  " + lines[i]
+                print("\n".join(lines) + "\n")
+
+
+def pulse_delete(config):
+    """
+    Deletes the specified configuration.
+
+    :param config: the configuration name
+    :type config: str
+    """
+
+    delete_config(config)
+    print("Deleted profile: %s" % config)
