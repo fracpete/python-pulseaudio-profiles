@@ -1,4 +1,4 @@
-# python-pulse-profiles
+# python-pulseaudio-profiles
 Simple command-line tool to create and apply pulseaudio profiles under Linux.
 
 Uses the [pulsectl](https://github.com/mk-fg/python-pulse-control) library
