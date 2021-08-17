@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.3 (????-??-??)
+0.0.3 (2021-08-17)
 ------------------
 
 - `config.list_config()` now initializes the config dir if necessary
