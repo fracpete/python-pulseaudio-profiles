@@ -75,11 +75,15 @@ def list_configs():
 
     result = []
 
+    if not os.path.exists(config_dir()):
+        init_config_dir()
+
     for f in os.listdir(config_dir()):
         if f.endswith(".yaml"):
             result.append(os.path.splitext(f)[0])
 
     return result
+
 
 def delete_config(config):
     """
