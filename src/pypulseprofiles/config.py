@@ -82,6 +82,8 @@ def list_configs():
         if f.endswith(".yaml"):
             result.append(os.path.splitext(f)[0])
 
+    result.sort()
+
     return result
 
 
